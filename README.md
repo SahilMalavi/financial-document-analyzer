@@ -163,78 +163,136 @@ graph TD
     G --> J[Investment Advisor]
     G --> K[Risk Assessor]
 ```
+Of course. Here are the detailed instructions formatted in Markdown, ready to be copied and pasted directly into your `README.md` file on GitHub.
 
-## 🛠 Setup Instructions
+-----
+
+## 🛠️ Setup and Installation
+
+Follow these steps to set up the project environment on your local machine.
 
 ### Prerequisites
 
-- Python 3.8+
-- Redis Server (for async processing)
-- Google Gemini API Key
-- Serper API Key (optional, for web search)
+  * **Python:** Version 3.8 or newer.
+  * **Git:** To clone the repository.
+  * **Redis:** A running Redis instance for asynchronous task queuing.
+  * **API Keys:**
+      * **Google Gemini API Key:** Required for AI agent functionality.
+      * **Serper API Key:** Optional, for enabling web search capabilities.
+  * **For Windows Users:** It is highly recommended to use **WSL (Windows Subsystem for Linux)** to run Redis and the application, as it provides a more stable Linux environment.
 
-### Installation
+### Step-by-Step Installation
 
-1. **Clone the repository**
-```bash
-git clone <your-repo-url>
-cd financial-document-analyzer
-```
+1.  **Clone the Repository**
 
-2. **Install dependencies**
-```bash
-pip install -r requirements.txt
-```
+    First, clone the project from GitHub to your local machine.
 
-3. **Environment Configuration**
-Create a `.env` file:
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
-SERPER_API_KEY=your_serper_api_key_here  # Optional
-```
+    ```bash
+    git clone https://github.com/SahilMalavi/financial-document-analyzer.git
+    cd financial-document-analyzer
+    ```
 
-4. **Start Redis Server**
-```bash
-# Ubuntu/Debian
-sudo service redis-server start
+2.  **Create and Activate a Virtual Environment**
 
-# macOS with Homebrew
-brew services start redis
+    It is a best practice to use a virtual environment to manage project dependencies and avoid conflicts.
 
-# Windows
-redis-server
-```
+      * Create the environment:
 
-5. **Initialize Database**
-```bash
-# Database will be automatically initialized on first startup
-mkdir data  # Create data directory for file storage
-```
+        ```bash
+        python -m venv venv
+        ```
+
+      * Activate the environment:
+
+          * On **Windows (PowerShell/CMD)**:
+            ```powershell
+            .\venv\Scripts\activate
+            ```
+          * On **macOS / Linux / WSL (Ubuntu on Windows)**:
+            ```bash
+            source venv/bin/activate
+            ```
+
+    *You will know it's active when you see `(venv)` at the beginning of your terminal prompt.*
+
+3.  **Install Dependencies**
+
+    Install all the required Python packages from the `requirements.txt` file.
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Configure Environment Variables**
+
+    You need to provide your secret API keys in a `.env` file.
+
+    1.  Create a new file named `.env` in the project's root directory.
+    2.  Copy and paste the following content into the file, replacing the placeholders with your actual keys:
+        ```env
+        GEMINI_API_KEY=your_google_gemini_api_key_here
+        SERPER_API_KEY=your_serper_api_key_here
+        ```
+
+5.  **Create the Data Directory**
+    The application needs a `data` directory to store uploaded files temporarily.
+
+    ```bash
+    mkdir data
+    ```
+
+-----
 
 ## 🚀 Running the Application
 
-### Option 1: Synchronous Processing Only
+To run the full application with asynchronous processing, you will need to open **three separate terminals** in your project directory (with the virtual environment activated in each).
+
+#### Terminal 1: Start the Redis Server
+
+Redis acts as the message broker for Celery.
+
+  * **On WSL (Ubuntu on Windows) or Linux:**
+
+    ```bash
+    # Start the Redis service
+    sudo service redis-server start
+
+    # (Optional) Check if it's running correctly
+    sudo service redis-server status
+    ```
+
+  * **On macOS (using Homebrew):**
+
+    ```bash
+    brew services start redis
+    ```
+
+  * **On Native Windows:**
+    If you have Redis installed on Windows, navigate to its installation directory and run:
+
+    ```bash
+    redis-server.exe
+    ```
+
+#### Terminal 2: Start the Celery Worker
+
+The Celery worker listens for tasks (like document analysis) from the Redis queue and executes them.
+
 ```bash
-python main.py
+# Make sure your venv is active in this terminal
+celery -A celery_worker.run_crew_task worker --loglevel=info
 ```
 
-### Option 2: Full System with Async Processing
+#### Terminal 3: Start the FastAPI Server
 
-**Terminal 1 - Start API Server:**
+This command starts the main web application using Uvicorn. The `--reload` flag is great for development as it automatically restarts the server whenever you change the code.
+
 ```bash
-python main.py
+# Make sure your venv is active in this terminal
+uvicorn main:app --reload
 ```
 
-**Terminal 2 - Start Celery Worker:**
-```bash
-celery -A celery_worker worker --loglevel=info
-```
-
-**Terminal 3 - Monitor Queue (Optional):**
-```bash
-celery -A celery_worker flower
-```
-
+*Your API is now running and available at `http://127.0.0.1:8000`.*
 ## 📚 API Documentation
 
 ### Base URL
