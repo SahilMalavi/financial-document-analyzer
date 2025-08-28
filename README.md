@@ -280,7 +280,8 @@ The Celery worker listens for tasks (like document analysis) from the Redis queu
 
 ```bash
 # Make sure your venv is active in this terminal
-celery -A celery_worker.run_crew_task worker --loglevel=info
+celery -A celery_app worker --loglevel=info --pool=solo
+
 ```
 
 #### Terminal 3: Start the FastAPI Server
