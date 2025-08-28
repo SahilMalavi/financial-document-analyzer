@@ -9,18 +9,18 @@ try:
     from celery.result import AsyncResult
     from celery_app import app as celery_app
     _has_celery = True
-    print("âœ… Celery available for async processing")
+    print("Celery available for async processing")
 except ImportError as e:
     _has_celery = False
-    print(f"âŒ Celery not available: {e}")
+    print(f"Celery not available: {e}")
 
 try:
     from db import init_db, save_new, update_result, get_by_job
     _has_db = True
-    print("âœ… Database available")
+    print("Database available")
 except Exception as e:
     _has_db = False
-    print(f"âŒ Database not available: {e}")
+    print(f"Database not available: {e}")
 
 # Check for required environment variables
 try:
@@ -31,19 +31,19 @@ try:
     SERPER_API_KEY = os.getenv("SERPER_API_KEY")
     
     if not GEMINI_API_KEY:
-        print("âŒ Warning: GEMINI_API_KEY not set - AI analysis will fail")
+        print("Warning: GEMINI_API_KEY not set - AI analysis will fail")
         _has_ai = False
     else:
-        print("âœ… GEMINI_API_KEY configured")
+        print("GEMINI_API_KEY configured")
         _has_ai = True
         
     if not SERPER_API_KEY:
-        print("âŒ Warning: SERPER_API_KEY not set - search functionality limited")
+        print("Warning: SERPER_API_KEY not set - search functionality limited")
     else:
-        print("âœ… SERPER_API_KEY configured")
+        print("SERPER_API_KEY configured")
         
 except Exception as e:
-    print(f"âŒ Error loading environment: {e}")
+    print(f"Error loading environment: {e}")
     _has_ai = False
 
 app = FastAPI(title="Financial Document Analyzer")
@@ -54,9 +54,9 @@ if _has_db:
     def on_startup():
         try:
             init_db()
-            print("âœ… Database initialized successfully")
+            print("Database initialized successfully")
         except Exception as e:
-            print(f"âŒ Database initialization failed: {e}")
+            print(f"Database initialization failed: {e}")
 
 @app.get("/")
 async def root():
@@ -465,11 +465,12 @@ if __name__ == "__main__":
     import uvicorn
     
     print("\n" + "="*50)
-    print("ðŸš€ Starting Financial Document Analyzer")
+    print("Starting Financial Document Analyzer")
     print("="*50)
     print(f"Celery: {'Available' if _has_celery else 'Not Available'}")
     print(f"Database: {'Available' if _has_db else 'Not Available'}")
     print(f"AI Service: {'Available' if _has_ai else 'Not Available'}")
     print("="*50 + "\n")
     
+
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
